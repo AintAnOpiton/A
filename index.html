@@ -1,0 +1,48 @@
+<!-- 
+indext.html - define UI structure(that renderer renders), tho' mostly used for static content(renderer handles the dynamic part)
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>My Electron App</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+        <div class="window-controls">
+            <div id="minimize-btn" class="control-button">
+                <div class="minimize-icon"></div>
+            </div>
+
+            <div id="close-btn" class="control-button">
+                <div class="close-icon-line line-1"></div>
+                <div class="close-icon-line line-2"></div>
+            </div>
+        </div>
+
+        <div id="side-box">
+          <div class="side-box-header"> 
+              <div id="overview-title-text" class="side-box-title-text">Overview</div> 
+              <span id="side-box-dirname" class="side-box-dirname"></span>
+          </div>
+          <div id="side-box-list" class="side-box-list side-box-list-root"></div>
+        </div>
+
+        <div id="file-preview-box">
+            <p class="drop-message">Drag and drop a file, directory, or URL here to preview and open.</p>
+            <div class="preview-content"></div>
+        </div>
+
+       
+        <div id="file-title" class="file-title">File</div>
+        <div id="file-context-menu" class="file-context-menu" style="display:none;"></div>
+
+        <button id="process-btn">
+          <img src="Resources/352-3526844_white-magnifying-glass-png-magnifying-glass-white-icon.png" alt="Process" />
+        </button>
+
+    </div> 
+    <script src="renderer.js"></script>
+  </body>
+</html>
