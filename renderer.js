@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    window.electronAPI.onFileProcessed((data) => {
+    window.electronAPI.onFileProcessed(async (data) => {
         console.log('[DEBUG] Received processed file:', data);
         hideProgressOverlay();
 
@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // 2. If no valid mainDirPath, try to get desktop path
                 if (window.electronAPI.getDesktopPath && fs && path) {
-                    targetBaseDir = window.electronAPI.getDesktopPath(); 
+                    targetBaseDir = await window.electronAPI.getDesktopPath(); 
                     if (targetBaseDir) {
                         finalResultsDirPath = path.join(targetBaseDir, resultsDirName);
                     } else {
@@ -488,24 +488,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 fs.copyFileSync(data.path, newFilePath);
-                console.log(`Copied processed file to: ${newFilePath}`);
-
                 dropMessage.style.display = 'block';
-                dropMessage.textContent = `Processed file saved to: ${newFilePath}`;
+                dropMessage.textContent = `Processing successful! Saved to: ${newFilePath}`;
             } catch (copyError) {
-                console.error('Failed to save processed file:', copyError);
-                dropMessage.style.display = 'block'; // Ensure message is visible
+                console.error('Failed to copy processed file:', copyError);
+                dropMessage.style.display = 'block';
                 dropMessage.textContent = `Processing successful, but failed to save file: ${copyError.message}`;
             }
-            // --- End Save Logic ---
-
-            setTimeout(() => {
-                if (data.message && (data.message.toLowerCase().includes('no faces') || data.message.toLowerCase().includes('face detection failed'))) {
-                }
-            }, 100);
-        } else {
-            previewContent.textContent = data.message || 'Processing failed.';
-            dropMessage.style.display = 'block';
+        } else if (data.status === 'success' && data.type === 'directory') {
+            mainDirPath = data.path;
+            setCurrentWatchedDir(data.path); // switch currentdir to the "new folder"
+            expandedDirs = {};
+            renderSideBox(mainDirPath, expandedDirs);
+            previewContent.innerHTML = '<div style="color:#bbb;font-size:1.5em;margin-top:2em;">Directory opened: ' + data.path + '</div>';
+            dropMessage.style.display = 'none';
+            if (data.message) {
+                dropMessage.style.display = 'block';
+                dropMessage.textContent = data.message;
+            }
         }
     });
 
