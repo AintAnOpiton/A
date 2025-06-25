@@ -23,8 +23,8 @@
 Можлива робота нативна, але це буде потребувати встановлення спеціальних розширень(як от Node.js, Electron) та встановлення скриптів запуску(npm run build, npm start тощо, якщо працюєте в Visual Studio Code).
 
 # H2: Примітки
-+ Для зручності та менших витрат часу я додав Google Drive посилання на теку "Processed_vid". Там розміщене оброблене відео довжиною в 56 sec. На ньому можна побачити роботу ШІ при розгляді відеоряду та відсотку хиби. **bold**[Тиць](https://drive.google.com/drive/folders/1wV7ghwC0TbIgj9-f6FSi8qz9ZAAp0YkU?usp=sharing)**bold**
-+ Введено "Test_folder" теку(також посилання), де швидко можна протестувати весь функціонал кастомного File Explorer, програвача та ін. **bold**[Тиць](https://drive.google.com/drive/folders/1OWK0hZijXzdhn0iwuwARWOmBqW06pt0S?usp=sharing)**bold**
++ Для зручності та менших витрат часу я додав Google Drive посилання на теку "Processed_vid". Там розміщене оброблене відео довжиною в 56 sec. На ньому можна побачити роботу ШІ при розгляді відеоряду та відсотку хиби. **[Тиць](https://drive.google.com/drive/folders/1wV7ghwC0TbIgj9-f6FSi8qz9ZAAp0YkU?usp=sharing)**
++ Введено "Test_folder" теку(також посилання), де швидко можна протестувати весь функціонал кастомного File Explorer, програвача та ін. **[Тиць](https://drive.google.com/drive/folders/1OWK0hZijXzdhn0iwuwARWOmBqW06pt0S?usp=sharing)**
 
 
 [Drive на екзешниk-setup](https://drive.google.com/file/d/1yVqKxVH0bb8IZT7hx4AgZaak0o2hKH-U/view?usp=drive_link)
