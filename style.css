@@ -49,12 +49,14 @@ h1 {
     height: 80px;
     display: flex;
     align-items: center;
-    justify-content: space-between; 
+    justify-content: flex-end; 
     -webkit-app-region: no-drag;
     z-index: 9999;
     pointer-events: auto;
     padding: 0 40px; 
     box-sizing: border-box;
+    -webkit-app-region: drag;
+
 }
 
 .control-button {
@@ -67,6 +69,7 @@ h1 {
     transition: background-color 0.2s;
     pointer-events: auto;
     z-index: 10000;
+    -webkit-app-region: no-drag;
 }
 
 .control-button:hover {
