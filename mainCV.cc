@@ -46,7 +46,7 @@ std::string getDesktopPath() {
 
 // Hhighlight icon for detected faces - shape creating by CV
 void drawRoundedRect(Mat& img, Rect face, int radius, Scalar fill, Scalar stroke, int thickness) {
-    Mat mask(img.size(), img.type(), Scalar(0,0,0));
+    Mat mask(img.size(), img.type(), Scalar(0, 0, 0));
     rectangle(mask, face, fill, FILLED, LINE_AA);
     rectangle(img, face, stroke, thickness, LINE_AA);
 }
@@ -164,7 +164,7 @@ std::string processImage(const std::string& imgPath) {
     face_cascade.detectMultiScale(gray, faces, 1.1, 5, 0, Size(50, 50));
     std::cerr << "[AI LOG] Faces detected: " << faces.size() << std::endl;
     for (const auto& face : faces) {
-        drawRoundedRect(normImg, face, 15, Scalar(0xd9,0xd9,0xd9), Scalar(255,255,255), 3);
+        drawRoundedRect(normImg, face, 15, Scalar(0xd9, 0xd9, 0xd9), Scalar(255, 255, 255), 3);
     }
 
     // Double down with HOG
@@ -172,14 +172,14 @@ std::string processImage(const std::string& imgPath) {
     HOGDescriptor hog;
     hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
     std::vector<Rect> people;
-    hog.detectMultiScale(normImg, people, 1.5, Size(16,16), Size(64,64), 1.1, 4);
+    hog.detectMultiScale(normImg, people, 1.5, Size(16, 16), Size(64, 64), 1.1, 4);
     std::cerr << "[AI LOG] People detected: " << people.size() << std::endl;
 
     // If face or person found, save output
     std::string outDir = getOutputDir(imgPath);
     size_t dot = imgPath.find_last_of('.');
     size_t slash = imgPath.find_last_of("/\\");
-    std::string stem = (slash != std::string::npos && dot != std::string::npos && dot > slash) ? imgPath.substr(slash+1, dot-slash-1) : "output";
+    std::string stem = (slash != std::string::npos && dot != std::string::npos && dot > slash) ? imgPath.substr(slash + 1, dot - slash - 1) : "output";
     std::string ext = (dot != std::string::npos) ? imgPath.substr(dot) : ".png";
     std::string outPath = outDir + "/" + stem + ext;
     imwrite(outPath, normImg);
@@ -205,7 +205,8 @@ std::string processVideo(const std::string& vidPath) {
     VideoCapture cap;
     if (isURL(vidPath)) {
         cap.open(vidPath);
-    } else {
+    }
+    else {
         cap.open(vidPath);
     }
     if (!cap.isOpened()) {
@@ -218,7 +219,7 @@ std::string processVideo(const std::string& vidPath) {
     std::string outDir = getOutputDir(vidPath);
     size_t dot = vidPath.find_last_of('.');
     size_t slash = vidPath.find_last_of("/\\");
-    std::string stem = (slash != std::string::npos && dot != std::string::npos && dot > slash) ? vidPath.substr(slash+1, dot-slash-1) : "output";
+    std::string stem = (slash != std::string::npos && dot != std::string::npos && dot > slash) ? vidPath.substr(slash + 1, dot - slash - 1) : "output";
     std::string ext = (dot != std::string::npos) ? vidPath.substr(dot) : ".mp4";
     std::string outPath = outDir + "/" + stem + "_faces" + ext;
     VideoWriter writer(outPath, fourcc, fps, size);
@@ -236,7 +237,7 @@ std::string processVideo(const std::string& vidPath) {
         face_cascade.detectMultiScale(gray, faces, 1.1, 5, 0, Size(50, 50));
         std::cerr << "[AI LOG] Frame " << frameCount << ": Faces detected: " << faces.size() << std::endl;
         for (const auto& face : faces) {
-            drawRoundedRect(frame, face, 15, Scalar(0xd9,0xd9,0xd9), Scalar(255,255,255), 3);
+            drawRoundedRect(frame, face, 15, Scalar(0xd9, 0xd9, 0xd9), Scalar(255, 255, 255), 3);
         }
         writer.write(frame);
         frameCount++;
@@ -255,7 +256,7 @@ int main(int argc, char* argv[]) {
         std::string outPath;
         if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".bmp" || ext == ".gif") { //Stick to those mentioned in renderer
             outPath = processImage(inputPath);
-        } 
+        }
         else if (ext == ".mp4" || ext == ".avi" || ext == ".mov" || ext == ".mkv" || ext == ".webm") {
             outPath = processVideo(inputPath);
         }
@@ -263,16 +264,18 @@ int main(int argc, char* argv[]) {
         // Begin logic mentioned in line 188
         if (!outPath.empty()) {
             std::cout << outPath << std::endl;
-        } else {
+        }
+        else {
             // even if detection failed, construct path
             std::string outDir = getOutputDir(inputPath);
             size_t slash = inputPath.find_last_of("/\\");
-            std::string stem = (slash != std::string::npos && dot != std::string::npos && dot > slash) ? inputPath.substr(slash+1, dot-slash-1) : "output";
+            std::string stem = (slash != std::string::npos && dot != std::string::npos && dot > slash) ? inputPath.substr(slash + 1, dot - slash - 1) : "output";
             std::string outFile = outDir + "/" + stem + ".png";
             std::cout << outFile << std::endl;
         }
-    } else {
+    }
+    else {
         std::cout << "No path received." << std::endl;
     }
     return 0;
-} 
+}
