@@ -438,64 +438,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.status === 'success' && (data.type === 'image' || data.type === 'video')) {
             lastProcessedFilePath = data.path;
             showPreview(data.path); // Show processed result in preview
-
-            // Save logic section
-            const fs = window.electronAPI.fs;
-            const path = window.electronAPI.path;
-
-            let targetBaseDir;
-            const resultsDirName = 'Results_of_detection';
-            let finalResultsDirPath;
-
-            // Determine target directory for saving
-            // 1. Check if mainDirPath(opened directory) is valid
-            if (mainDirPath && fs && fs.existsSync(mainDirPath) && fs.statSync(mainDirPath).isDirectory()) {
-                finalResultsDirPath = path.join(mainDirPath, resultsDirName);
-            } else {
-                // 2. If no valid mainDirPath, try to get desktop path
-                if (window.electronAPI.getDesktopPath && fs && path) {
-                    targetBaseDir = await window.electronAPI.getDesktopPath(); 
-                    if (targetBaseDir) {
-                        finalResultsDirPath = path.join(targetBaseDir, resultsDirName);
-                    } else {
-                        console.error("Could not get desktop path from Electron API.");
-                        dropMessage.style.display = 'block';
-                        dropMessage.textContent = 'Processing successful, but could not determine save location (desktop path unavailable).';
-                        return; 
-                    }
-                } else {
-                    console.error("Electron API for desktop path or fs/path not available.");
-                    dropMessage.style.display = 'block'; 
-                    dropMessage.textContent = 'Processing successful, but saving failed (Electron APIs missing or not configured).';
-                    return; 
-                }
-            }
-            if (!fs.existsSync(finalResultsDirPath)) {
-                try {
-                    fs.mkdirSync(finalResultsDirPath, { recursive: true });
-                    console.log(`Created results directory: ${finalResultsDirPath}`);
-                } catch (mkdirError) {
-                    console.error('Failed to create results directory:', mkdirError);
-                    dropMessage.style.display = 'block'; 
-                    dropMessage.textContent = `Processing successful, but failed to create results directory: ${mkdirError.message}`;
-                    return; 
-                }
-            }
-
-            // Construct the new file path in the results directory
-            const originalFileName = path.basename(data.path);
-            const newFilePath = path.join(finalResultsDirPath, originalFileName);
-
-            try {
-                fs.copyFileSync(data.path, newFilePath);
-                dropMessage.style.display = 'block';
-                dropMessage.textContent = `Processing successful! Saved to: ${newFilePath}`;
-            } catch (copyError) {
-                console.error('Failed to copy processed file:', copyError);
-                dropMessage.style.display = 'block';
-                dropMessage.textContent = `Processing successful, but failed to save file: ${copyError.message}`;
-            }
-        } else if (data.status === 'success' && data.type === 'directory') {
+        } 
+        else if (data.status === 'success' && data.type === 'directory') {
             mainDirPath = data.path;
             setCurrentWatchedDir(data.path); // switch currentdir to the "new folder"
             expandedDirs = {};
@@ -629,10 +573,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('file-menu-new-folder').onclick = async () => {
                 fileMenu.style.display = 'none';
                 // Use the current watched dir, fallback to desktop
-                let baseDir = window.currentWatchedDir;
-                if (!baseDir && window.electronAPI.getDesktopPath) {
-                    baseDir = await window.electronAPI.getDesktopPath();
-                }
+                let baseDir = await window.electronAPI.getDesktopPath();
+
                 if (!baseDir) {
                     alert('Cannot determine folder to create new directory.');
                     return;
@@ -825,16 +767,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Listen for folder creation(used as a fallback apart the main process)
-    window.electronAPI.onFolderCreated((data) => {
-        if (data.status === 'success') {
-            console.log(`Folder created: ${data.path}`); // fallback
-            if (mainDirPath && data.path.startsWith(mainDirPath)) {
-                renderSideBox(mainDirPath, expandedDirs);
-            }
-        } else if (data.status === 'exists') {
-            console.log(`Folder already exists: ${data.path}`);
-        } else if (data.status === 'error') {
-            alert('Failed to create folder: ' + (data.message || 'Unknown error'));
+window.electronAPI.onFolderCreated((data) => {
+    if (data.status === 'success') {
+        console.log(`Folder created: ${data.path}`);
+        
+        mainDirPath = data.path; 
+        setCurrentWatchedDir(data.path); 
+        expandedDirs = {}; 
+        renderSideBox(mainDirPath, expandedDirs); 
+
+        // Update the preview box to indicate the new folder is opened
+        previewContent.innerHTML = '<div style="color:#bbb;font-size:1.5em;margin-top:2em;">New folder created and opened: ' + data.path + '</div>';
+        dropMessage.style.display = 'none'; // Ensure drop message is hidden
+
+        // Ensure the directory watcher starts for the new folder
+        if (currentDirWatcherPath && window.electronAPI.stopWatchingDirectory) {
+            window.electronAPI.stopWatchingDirectory(currentDirWatcherPath);
+            console.log(`[DEBUG] Stopped watching old directory: ${currentDirWatcherPath}`);
         }
+        if (window.electronAPI.startWatchingDirectory) {
+            window.electronAPI.startWatchingDirectory(mainDirPath);
+            currentDirWatcherPath = mainDirPath;
+            console.log(`[DEBUG] Started watching new directory: ${mainDirPath}`);
+        } else {
+            console.warn('Electron API "startWatchingDirectory" not available. Real-time updates disabled.');
+        }
+
+    } else if (data.status === 'exists') {
+        console.log(`Folder already exists: ${data.path}`);
+        // Replaced alert with a message in previewContent - best-pratice thingy
+        previewContent.innerHTML = '<p style="color:red;">Failed to create folder: A folder with that name already exists on the Desktop.</p>';
+        dropMessage.style.display = 'block';
+    } else if (data.status === 'error') {
+        previewContent.innerHTML = '<p style="color:red;">Failed to create folder: ' + (data.message || 'Unknown error') + '</p>';
+        dropMessage.style.display = 'block';
+    }
     });
 });
